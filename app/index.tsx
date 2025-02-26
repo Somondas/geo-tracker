@@ -55,13 +55,13 @@ export default function Index() {
   }, []);
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={{ flex: 1 }}>
       <Header />
       {locationAccessPermission === false ? (
         <Text>Permission Denied</Text>
       ) : location && address ? (
         <View style={{ flex: 1 }}>
-          <ScrollView>
+          <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
             {/* Item */}
             <DataListItem title={"Latitude"} data={location.latitude} />
             <DataListItem title={"Longitude"} data={location.longitude} />

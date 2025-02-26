@@ -1,63 +1,83 @@
-import { ActivityIndicator, SafeAreaView, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  SafeAreaView,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 import Header from "./components/Header";
-import { useFonts } from "expo-font";
 import { useEffect, useState } from "react";
 import * as Location from "expo-location";
 import type { LocationObjectCoords } from "expo-location";
+import DataListItem from "./components/DataListItem";
 
 export default function Index() {
-  // >> States
-  const [location, setLocation] = useState(null);
-  const [address, setAddress] = useState(null);
-  const [locationAccessPermission, setLocationAccessPermission] =
-    useState(false);
-  const [lastUpdated, setLastUpdated] = useState(null);
+  // ✅ Proper TypeScript Types
+  const [location, setLocation] = useState<LocationObjectCoords | null>(null);
+  const [address, setAddress] =
+    useState<Location.LocationGeocodedAddress | null>(null);
+  const [locationAccessPermission, setLocationAccessPermission] = useState<
+    boolean | null
+  >(null);
+  const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
-  // >> useEffect
+  // ✅ useEffect to Get Location & Update Every 2 Secs
   useEffect(() => {
     const fetchLocation = async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        setLocationAccessPermission(false); // Set to false if permission is denied
+        setLocationAccessPermission(false);
         return;
       }
-      setLocationAccessPermission(true); // Set to true if permission is granted
+      setLocationAccessPermission(true);
 
       let currentLocation = await Location.getCurrentPositionAsync({});
-      setLocation(currentLocation.coords); // Store location in state
-      setLastUpdated(new Date().toLocaleTimeString()); // -> Set last updated
-      // >> Reverse Geocode to get address
+      setLocation(currentLocation.coords);
+      setLastUpdated(new Date().toLocaleTimeString());
+
+      // ✅ Log Immediately After Getting Data
+      console.log("Current Location:", currentLocation.coords);
+
       let geocode = await Location.reverseGeocodeAsync({
         latitude: currentLocation.coords.latitude,
         longitude: currentLocation.coords.longitude,
       });
 
       if (geocode.length > 0) {
-        setAddress(geocode[0]); // -> Stores the geocode
+        setAddress(geocode[0]);
+        console.log("Geocode Data:", geocode[0]); // ✅ Log the correct data
       }
-      console.log(address);
     };
-    fetchLocation();
+
+    fetchLocation(); // Initial Call
     const interval = setInterval(fetchLocation, 2000);
     return () => clearInterval(interval);
   }, []);
-  console.log(location);
+
   return (
     <SafeAreaView>
       <Header />
-      {!locationAccessPermission ? (
+      {locationAccessPermission === false ? (
         <Text>Permission Denied</Text>
-      ) : (
-        <View>
-          <Text>Latitude: 26.9124° N </Text>
-          <Text>Longitude: 75.7873° E </Text>
-          <Text>City: Jaipur </Text>
-          <Text>State: Rajasthan</Text>
-          <Text>Country: India </Text>
-          <Text>Postal Code: 302001 </Text>
-          <Text>Last Updated: 12:45 PM </Text>
-          <Text>Update Frequency: 2 seconds</Text>
+      ) : location && address ? (
+        <View style={{ flex: 1 }}>
+          <ScrollView>
+            {/* Item */}
+            <DataListItem title={"Latitude"} data={location.latitude} />
+            <DataListItem title={"Longitude"} data={location.longitude} />
+            <DataListItem title={"City"} data={address.city || "N/A"} />
+            <DataListItem title={"State"} data={address.region || "N/A"} />
+            <DataListItem title={"Country"} data={address.country || "N/A"} />
+            <DataListItem
+              title={"Postal Code"}
+              data={address.postalCode || "N/A"}
+            />
+            <DataListItem title={"Last Updated"} data={lastUpdated} />
+            <DataListItem title={"Update Frequency"} data={"2 seconds"} />
+          </ScrollView>
         </View>
+      ) : (
+        <ActivityIndicator size="large" color="#0000ff" />
       )}
     </SafeAreaView>
   );

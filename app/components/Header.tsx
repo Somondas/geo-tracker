@@ -8,7 +8,7 @@ const Header = () => {
         style={{
           fontFamily: "PlaywriteITModerna-Regular",
         }}
-        className="text-2xl font-bold text-blue-500"
+        className="text-2xl font-playwrite-regular text-slate-800 "
       >
         Live Location Tracker
       </Text>

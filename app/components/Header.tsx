@@ -3,7 +3,7 @@ import React from "react";
 
 const Header = () => {
   return (
-    <View className="w-full h-14  flex justify-center items-center">
+    <View className="w-full h-auto py-6 flex justify-center items-center">
       <Text
         style={{
           fontFamily: "PlaywriteITModerna-Regular",

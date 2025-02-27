@@ -10,6 +10,7 @@ import * as Location from "expo-location";
 import type { LocationObjectCoords } from "expo-location";
 import Header from "../components/Header";
 import DataListItem from "../components/DataListItem";
+import { PRIMARY_WHITE } from "../constants";
 
 export default function Index() {
   // ✅ Proper TypeScript Types
@@ -36,7 +37,7 @@ export default function Index() {
       setLastUpdated(new Date().toLocaleTimeString());
 
       // ✅ Log Immediately After Getting Data
-      console.log("Current Location:", currentLocation.coords);
+      // console.log("Current Location:", currentLocation.coords);
 
       let geocode = await Location.reverseGeocodeAsync({
         latitude: currentLocation.coords.latitude,
@@ -55,7 +56,7 @@ export default function Index() {
   }, []);
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: PRIMARY_WHITE }}>
       <Header />
       {locationAccessPermission === false ? (
         <Text>Permission Denied</Text>

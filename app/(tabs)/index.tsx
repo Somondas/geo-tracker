@@ -107,12 +107,15 @@ export default function Index() {
   // >> Use Effect to get location (the main useEffect)
   useEffect(() => {
     fetchLocation(); // Initial Call
+
+    //-> this slow the update time if the battery percentange is less that 20%
     if (batteryLevel !== null && batteryLevel < 20) {
       setIntervalTime(5000);
+    } else {
+      setIntervalTime(2000);
     }
-    setIntervalTime(2000);
     // const intervalTime =
-    //   batteryLevel !== null && batteryLevel < 20 ? 5000 : 2000; // this slow the update time if the battery percentange is less that 20%
+    //   batteryLevel !== null && batteryLevel < 20 ? 5000 : 2000;
     const interval = setInterval(fetchLocation, intervalTime);
     return () => clearInterval(interval);
   }, []);

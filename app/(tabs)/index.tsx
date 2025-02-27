@@ -1,5 +1,7 @@
 import {
   ActivityIndicator,
+  Button,
+  Pressable,
   SafeAreaView,
   ScrollView,
   Text,
@@ -11,9 +13,10 @@ import type { LocationObjectCoords } from "expo-location";
 import Header from "../components/Header";
 import DataListItem from "../components/DataListItem";
 import { PRIMARY_WHITE } from "../constants";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 export default function Index() {
-  // ✅ Proper TypeScript Types
+  // >> States
   const [location, setLocation] = useState<LocationObjectCoords | null>(null);
   const [address, setAddress] =
     useState<Location.LocationGeocodedAddress | null>(null);
@@ -22,7 +25,10 @@ export default function Index() {
   >(null);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
-  // ✅ useEffect to Get Location & Update Every 2 Secs
+  // >> Handle Share Function
+  const handleShare = async () => {};
+
+  // >> Use Effect
   useEffect(() => {
     const fetchLocation = async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -36,7 +42,6 @@ export default function Index() {
       setLocation(currentLocation.coords);
       setLastUpdated(new Date().toLocaleTimeString());
 
-      // ✅ Log Immediately After Getting Data
       // console.log("Current Location:", currentLocation.coords);
 
       let geocode = await Location.reverseGeocodeAsync({
@@ -58,6 +63,28 @@ export default function Index() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: PRIMARY_WHITE }}>
       <Header />
+      <Pressable
+        onPress={handleShare}
+        disabled={!address}
+        className={`py-3 h-15 w-2/3 mx-auto mb-4 rounded-lg ${
+          !address ? "bg-slate-500" : "bg-[#415a77]"
+        } `}
+      >
+        <Text className="text-center text-white font-semibold">
+          {address ? (
+            <Text className="font-playwrite-regular text-lg">
+              <FontAwesome
+                name="share-square-o"
+                size={20}
+                color={PRIMARY_WHITE}
+              />{" "}
+              Share Location
+            </Text>
+          ) : (
+            "Loading Address..."
+          )}
+        </Text>
+      </Pressable>
       {locationAccessPermission === false ? (
         <Text>Permission Denied</Text>
       ) : location && address ? (

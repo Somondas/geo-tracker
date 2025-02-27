@@ -23,7 +23,8 @@ import {
 } from "../constants";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { useNavigation } from "expo-router";
+import { useRouter } from "expo-router";
+import * as Battery from "expo-battery";
 export default function Index() {
   // >> States
   const [location, setLocation] = useState<LocationObjectCoords | null>(null);
@@ -33,8 +34,9 @@ export default function Index() {
     boolean | null
   >(null);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
-
-  const navigation = useNavigation();
+  const [batteryLevel, setBatteryLevel] = useState<number | null>(null);
+  const [intervalTime, setIntervalTime] = useState(2000);
+  const router = useRouter();
 
   // >> Handle Share Function
   const handleShare = async () => {
@@ -55,54 +57,81 @@ export default function Index() {
       Alert.alert("Error", "Failed");
     }
   };
-  // >> useEffect to get battery level & optimize updates
-  useEffect(() => {
-    const fetchBatteryLevel = async () => {};
-  }, []);
+
   // >> useEffect for checking internet connectivity
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener((state) => {
       if (!state.isConnected) {
-        navigation.navigate("no-internet");
+        router.push("/no-internet");
       }
     });
     return () => unsubscribe();
   }, []);
-  // >> Use Effect
+  // >> useEffect to get battery level
   useEffect(() => {
-    const fetchLocation = async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        setLocationAccessPermission(false);
-        return;
-      }
-      setLocationAccessPermission(true);
-
-      let currentLocation = await Location.getCurrentPositionAsync({});
-      setLocation(currentLocation.coords);
-      setLastUpdated(new Date().toLocaleTimeString());
-
-      // console.log("Current Location:", currentLocation.coords);
-
-      let geocode = await Location.reverseGeocodeAsync({
-        latitude: currentLocation.coords.latitude,
-        longitude: currentLocation.coords.longitude,
-      });
-
-      if (geocode.length > 0) {
-        setAddress(geocode[0]);
-        // console.log("Geocode Data:", geocode[0]); // ✅ Log the correct data
-      }
+    const fetchBatteryLevel = async () => {
+      const level = await Battery.getBatteryLevelAsync();
+      setBatteryLevel(level * 100);
     };
 
+    fetchBatteryLevel();
+    const batteryInterval = setInterval(fetchBatteryLevel, 10000);
+    return () => clearInterval(batteryInterval);
+  }, []);
+  // >> fetchLocation function
+  const fetchLocation = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      setLocationAccessPermission(false);
+      return;
+    }
+    setLocationAccessPermission(true);
+
+    let currentLocation = await Location.getCurrentPositionAsync({});
+    setLocation(currentLocation.coords);
+    setLastUpdated(new Date().toLocaleTimeString());
+
+    // console.log("Current Location:", currentLocation.coords);
+
+    let geocode = await Location.reverseGeocodeAsync({
+      latitude: currentLocation.coords.latitude,
+      longitude: currentLocation.coords.longitude,
+    });
+
+    if (geocode.length > 0) {
+      setAddress(geocode[0]);
+      // console.log("Geocode Data:", geocode[0]); // Log the  data
+    }
+    // console.log("done");
+  };
+  // >> Use Effect to get location (the main useEffect)
+  useEffect(() => {
     fetchLocation(); // Initial Call
-    const interval = setInterval(fetchLocation, 2000);
+    if (batteryLevel !== null && batteryLevel < 20) {
+      setIntervalTime(5000);
+    }
+    setIntervalTime(2000);
+    // const intervalTime =
+    //   batteryLevel !== null && batteryLevel < 20 ? 5000 : 2000; // this slow the update time if the battery percentange is less that 20%
+    const interval = setInterval(fetchLocation, intervalTime);
     return () => clearInterval(interval);
   }, []);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: PRIMARY_WHITE }}>
       <Header />
+      <Pressable
+        onPress={fetchLocation}
+        // disabled={!address}
+        className={`py-3 h-15 w-2/3 mx-auto mb-4 rounded-lg bg-[#415a77] `}
+      >
+        <Text className="text-center text-white font-semibold">
+          <Text className="font-playwrite-regular text-lg">
+            <FontAwesome name="refresh" size={20} color={PRIMARY_WHITE} />{" "}
+            Refresh
+          </Text>
+        </Text>
+      </Pressable>
       <Pressable
         onPress={handleShare}
         disabled={!address}
@@ -150,7 +179,10 @@ export default function Index() {
               data={address.postalCode || "N/A"}
             />
             <DataListItem title={"Last Updated"} data={lastUpdated} />
-            <DataListItem title={"Update Frequency"} data={"2 seconds"} />
+            <DataListItem
+              title={"Update Frequency"}
+              data={`${intervalTime / 1000} seconds`}
+            />
           </ScrollView>
         </View>
       ) : (

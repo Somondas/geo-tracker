@@ -14,9 +14,14 @@ import * as Location from "expo-location";
 import type { LocationObjectCoords } from "expo-location";
 import Header from "../components/Header";
 import DataListItem from "../components/DataListItem";
-import { PRIMARY_BLUE_EXTRA_DARK, PRIMARY_WHITE } from "../constants";
+import {
+  PRIMARY_BLUE_EXTRA_DARK,
+  PRIMARY_BLUE_LIGHT,
+  PRIMARY_BLUE_REGULAR,
+  PRIMARY_WHITE,
+} from "../constants";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 export default function Index() {
   // >> States
   const [location, setLocation] = useState<LocationObjectCoords | null>(null);
@@ -105,7 +110,16 @@ export default function Index() {
         </Text>
       </Pressable>
       {locationAccessPermission === false ? (
-        <Text>Permission Denied</Text>
+        <View
+          className={`w-11/12 h-3/5 mx-auto flex justify-center items-center my-auto bg-[${PRIMARY_BLUE_REGULAR}]`}
+        >
+          <MaterialIcons name="error-outline" size={60} color={PRIMARY_WHITE} />
+          <Text
+            className={`text-2xl font-playwrite-regular text-['${PRIMARY_WHITE}'] `}
+          >
+            Permission Denied
+          </Text>
+        </View>
       ) : location && address ? (
         <View style={{ flex: 1 }}>
           <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>

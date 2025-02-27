@@ -1,9 +1,11 @@
 import {
   ActivityIndicator,
+  Alert,
   Button,
   Pressable,
   SafeAreaView,
   ScrollView,
+  Share,
   Text,
   View,
 } from "react-native";
@@ -12,7 +14,7 @@ import * as Location from "expo-location";
 import type { LocationObjectCoords } from "expo-location";
 import Header from "../components/Header";
 import DataListItem from "../components/DataListItem";
-import { PRIMARY_WHITE } from "../constants";
+import { PRIMARY_BLUE_EXTRA_DARK, PRIMARY_WHITE } from "../constants";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 
 export default function Index() {
@@ -26,7 +28,24 @@ export default function Index() {
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
 
   // >> Handle Share Function
-  const handleShare = async () => {};
+  const handleShare = async () => {
+    try {
+      if (!address) return;
+      const formattedAddress = `Name: ${address.name || ""}\nCity: ${
+        address.city || ""
+      }\nState: ${address.region || ""}\nPostal Code: ${
+        address.postalCode || ""
+      }\nCountry: ${address.country || ""}\nSub-region: ${
+        address.subregion || ""
+      }  `;
+      // const formattedAddress = address.formattedAddress;
+      await Share.share({
+        message: `📍 Location Details:\n${formattedAddress}\nLatitude: ${location?.latitude},\nLongitude: ${location?.longitude}`,
+      });
+    } catch (error) {
+      Alert.alert("Error", "Failed");
+    }
+  };
 
   // >> Use Effect
   useEffect(() => {
@@ -51,7 +70,7 @@ export default function Index() {
 
       if (geocode.length > 0) {
         setAddress(geocode[0]);
-        console.log("Geocode Data:", geocode[0]); // ✅ Log the correct data
+        // console.log("Geocode Data:", geocode[0]); // ✅ Log the correct data
       }
     };
 
@@ -105,7 +124,7 @@ export default function Index() {
           </ScrollView>
         </View>
       ) : (
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator size="large" color={PRIMARY_BLUE_EXTRA_DARK} />
       )}
     </SafeAreaView>
   );

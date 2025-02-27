@@ -5,11 +5,11 @@ import {
   Text,
   View,
 } from "react-native";
-import Header from "./components/Header";
 import { useEffect, useState } from "react";
 import * as Location from "expo-location";
 import type { LocationObjectCoords } from "expo-location";
-import DataListItem from "./components/DataListItem";
+import Header from "../components/Header";
+import DataListItem from "../components/DataListItem";
 
 export default function Index() {
   // ✅ Proper TypeScript Types

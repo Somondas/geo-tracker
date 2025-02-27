@@ -13,10 +13,9 @@ export default function RootLayout() {
     return <ActivityIndicator size="large" color="#0000ff" />;
   }
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-      }}
-    />
+    <Stack>
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      {/* <Stack.Screen name="+not-found" /> */}
+    </Stack>
   );
 }

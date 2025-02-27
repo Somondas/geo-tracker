@@ -14,6 +14,7 @@ import * as Location from "expo-location";
 import type { LocationObjectCoords } from "expo-location";
 import Header from "../components/Header";
 import DataListItem from "../components/DataListItem";
+import NetInfo from "@react-native-community/netinfo";
 import {
   PRIMARY_BLUE_EXTRA_DARK,
   PRIMARY_BLUE_LIGHT,
@@ -22,6 +23,7 @@ import {
 } from "../constants";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { useNavigation } from "expo-router";
 export default function Index() {
   // >> States
   const [location, setLocation] = useState<LocationObjectCoords | null>(null);
@@ -31,6 +33,8 @@ export default function Index() {
     boolean | null
   >(null);
   const [lastUpdated, setLastUpdated] = useState<string | null>(null);
+
+  const navigation = useNavigation();
 
   // >> Handle Share Function
   const handleShare = async () => {
@@ -51,7 +55,19 @@ export default function Index() {
       Alert.alert("Error", "Failed");
     }
   };
-
+  // >> useEffect to get battery level & optimize updates
+  useEffect(() => {
+    const fetchBatteryLevel = async () => {};
+  }, []);
+  // >> useEffect for checking internet connectivity
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener((state) => {
+      if (!state.isConnected) {
+        navigation.navigate("no-internet");
+      }
+    });
+    return () => unsubscribe();
+  }, []);
   // >> Use Effect
   useEffect(() => {
     const fetchLocation = async () => {

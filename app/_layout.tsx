@@ -6,6 +6,9 @@ import * as SplashScreen from "expo-splash-screen";
 import { useState, useEffect } from "react";
 import Preloader from "./components/Preloader";
 
+// Prevents the splash screen
+SplashScreen.preventAutoHideAsync();
+
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
     "PlaywriteITModerna-Light": require("../assets/fonts/PlaywriteITModerna-Light.ttf"),
